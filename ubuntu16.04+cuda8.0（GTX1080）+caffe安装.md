@@ -1,22 +1,38 @@
 **1、	ubuntu16.04安装**
+
 参考：[http://www.tuicool.com/articles/JvUvQjZ](http://www.tuicool.com/articles/JvUvQjZ)
+
 手动添加显卡选项。
+
 具体我的做法是：首先参考 [http://blog.sciencenet.cn/blog-655584-877622.html](http://blog.sciencenet.cn/blog-655584-877622.html)
 
 **1）**安装时，将箭头移动至"install ubuntu"，按"e"进入编辑模式，进入命令行模式, 然后去掉"---"后，依照不同显卡进行不同显卡驱动选项的添加
+
 （1）Intel 82852/82855 或8系列显示晶片：i915.modeset=1或i915.modeset=0
+
 （2）Nvidia：nomodeset
+
 （3）其它厂牌(如ATI，技嘉)：xforcevesa或radeon.modeset=0 xforcevesa [DELL T3400显卡为Nvidia FX580，选择nomodeset]
 然后按 F10或ctrl+x安装
+
 **2）**分区：efi             1G
+
           usr/local   300G
+          
            boot        200M
+           
           / 根目录    300G
+          
          交换空间    20G  （内存16G）
+         
          其余都是/home
+         
 **3）**安装结束后，重启时，按住shift不放进入grub画面
+
 按'''e''' 进入编辑开机指令的模式, 找到'''ro quite splash''' ，在ro 与 quite 之间写入nomodeset，并将本行后面的字母删掉。
+
 按 ''F10''启动系统.
+
 **4）**进去系统之后我的桌面一片空白，无法使用终端。所以进入字符界面，编辑'''/etc/default/grub''' 这个档案(要管理者权限sudo)。
 
 ```
@@ -24,24 +40,33 @@ sudo vi /etc/default/grub
 ```
 
 **5）**找到这一行:
+
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+
 修改为：
+
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nomodeset"
 
 **6）**更新GRUB： `sudo update-grub`
 
 **7）**`sudo shutdown -h now` (关机)
 
-安装完成，输入登录帐号后，进入桌面一篇空白，wifi可连接窗口闪烁几下之后没反应了。Google之后发现是由于显卡驱动没装，所以又开始挂载移动硬盘，安装驱动。
+安装完成，输入登录帐号后，进入桌面一篇空白，wifi可连接窗口闪烁几下之后没反应了。
+
+Google之后发现是由于显卡驱动没装，所以又开始挂载移动硬盘，安装驱动。
 
 **2、NVIDIA 驱动安装**
 **1)**  挂载移动硬盘
 （参考：[http://www.2cto.com/os/201306/218232.html](http://www.2cto.com/os/201306/218232.html) ）
+
 	**Ctrl+alt+F1**进入字符界面，关闭图形界面
+	
 `sudo /etc/init.d/lightdm stop`      //**必须有，不然会安装失败**
 
 sudo fdisk -l
+
 显示信息中最后一行出现：
+
 /dev/sdb1   *        2048   976769023   488383488    7  HPFS/NTFS/exFAT
 
 建立一个文件夹 `sudo mkdir /media/disk`
@@ -49,6 +74,7 @@ sudo fdisk -l
 把移动硬盘挂载在这个文件夹上 `mount -o rw /dev/sdb1 /media/disk`
 
 cd /media/disk/ubuntu16.04
+
 cp NVIDIA-Linux-x86_64-367.27.run /home/zhou
 
 **2)**	安装nvidia driver 
@@ -57,24 +83,34 @@ sudo chmod 755 NVIDIA-Linux-x86_64-367.27.run  //获取权限
 sudo ./NVIDIA-Linux-x86_64-367.27.run  //安装驱动
 ```
 Accept 
+
 Continue installation 
+
 安装完成之后
+
 ```
 sudo /etc/init.d/lightdm start
 ```
 重启系统。T_T终于正常进入系统了。
 
 **3、	更新源，安装了一些软件**
+
 参考：[http://www.tuicool.com/articles/JvUvQjZ](http://www.tuicool.com/articles/JvUvQjZ)
+
 安装openssh
+
 加入源
+
 sudo apt-get update
+
 sudo apt-get install nvidia-settings nvidia-prime
+
   重启进入桌面。
 
 **4、	Cuda8.0安装**
     
 **1)**	安装所必须的库
+
 `sudo service lightdm stop`
  
 ```
@@ -82,7 +118,9 @@ sudo apt-get install freeglut3-dev build-essential libx11-dev libxmu-dev libxi-d
 ```
 
  运行指令 `sudo sh cuda_8.0.27_linux.run`
+ 
    选择 
+   
     Do you accept the previously read EULA?
 accept/decline/quit: accept
 
@@ -140,6 +178,7 @@ sudo apt-get install vim
 安装完成。
 
 **4)**	设置环境变量
+
 在终端输入这两句：
 
 ```
@@ -197,6 +236,7 @@ cuda/lib64/libcudnn.so
 cuda/lib64/libcudnn.so.5
 cuda/lib64/libcudnn.so.5.0.5
 cuda/lib64/libcudnn_static.a*
+
 继续执行以下指令：
 
 ```
@@ -207,38 +247,57 @@ sudo chmod a+r /usr/local/cuda/lib64/libcudnn*
 ```
 
 8)	验证一下，哈哈哈哈哈啊哈哈哈哈哈
+
 cuda的samples 里面有个deviceQuery 运行之后会显示信息，最后一行出行pass说明成功啦～～～～
 
 **5、matlab安装**
 **1）**先获取root权限
+
 ```
 sudo su
 ```
-**2）**然后按照[以前的步骤](http://blog.csdn.net/sinat_29089097/article/details/50461266)来，不过这次没有创建快捷方式，因为根本没用过==。
+
+**2）**然后按照[以前的步骤](http://blog.csdn.net/sinat_29089097/article/details/50461266)来
+
+不过这次没有创建快捷方式，因为根本没用过==。
+
 下载完成后将iso文件挂载到Linux
+
 ```
 sudo mkdir /media/matlab
 mount -o loop [path][filename].iso /media/matlab
 cd /media/matlab
 sudo ./install
 ```
+
 进行安装，安装路径：/usr/local/MATLAB/R2014a 
+
 PS：需要注意的是，我下载到的文件里面 readme.txt里没有序列号，所以我就随便填了一个
+
 选项：不使用Internet安装
+
 序列号： 12345-67890-09876-54321
+
 默认路径：/usr/local/MATLAB/R2014a
+
 勾选从默认启动路径创建符号链接（实现在任意位置运行matlab启动程序）
-**3）**激活，选择离线激活模式，选择crack文件夹下的license_405329_R2014a.lic文件进行激活。 
+
+**3）**激活，选择离线激活模式，选择crack文件夹下的license_405329_R2014a.lic文件进行激活。
+
 **4）**破解 将crack文件夹下的libmwservices.so 复制到/usr/local/MATLAB/R2014A/bin/glnxa64 
+
 ```
 sudo cp libmwservices.so /usr/local/MATLAB/R2014a/bin/glnxa64/ 
 ```
+
 **5）**完成安装，命令行下使用sudo matlab即可启动使用
 
 **6、	caffe 安装**
+
 这里是跟着[官网教程](http://caffe.berkeleyvision.org/install_apt.html)来的
 
 **1)**	安装依赖项
+
 ```
 sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
 ```
@@ -246,6 +305,7 @@ sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev 
 sudo apt-get install --no-install-recommends libboost-all-dev
 ```
 **2)**	BLAS安装
+
 ```
 sudo apt-get install libatlas-base-dev
 ```
@@ -259,28 +319,51 @@ sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
 ```
 **5)**	opencv3.0安装
 参照[http://ouxinyu.github.io/Blogs/20151108001.html](http://ouxinyu.github.io/Blogs/20151108001.html)
-**（1）**使用他提供的修改版的安装包(即[百度云](http://pan.baidu.com/s/1qX1uFHa)下载，密码：wysa)（下面的安装方式使用该包完成，安装包修改了dependencies.sh文件并增加了OpenCV 3.0.0的安装文件）
+
+**（1）**使用他提供的修改版的安装包(即[百度云](http://pan.baidu.com/s/1qX1uFHa)下载，密码：wysa)
+
+（下面的安装方式使用该包完成，安装包修改了dependencies.sh文件并增加了OpenCV 3.0.0的安装文件）
+
 **（2）**切换到文件保存的文件夹（/home/zhou/opencv3.0），然后安装依赖项
+
 `sudo sh dependencies.sh`
+
 **（3）**安装OpenCV3.0
+
  `sudo sh opencv3_0_0.sh` 
+ 
 ==。 就应该直接自己下载文件的，我这渣网速。
+
 虽然最后下完了，但是在半路又需要下载文件**ippicv_linux_20141027.tgz**
+
 因为网络不稳定，所以我在自己的电脑上下载了之后复制到需要的文件夹：
+
 `cp ippicv_linux_20141027.tgz /home/zhou/opencv3.0/OpenCV/opencv-3.0.0/3rdparty/ippicv/downloads/linux-8b449a536a2157bcad08a2b9f266828b`
+
 重新运行指令：
+
 `sudo sh opencv3_0_0.sh`
-然后开始正常安装，并开始make，但是make到24%出现错误，gcc版本太高，ubuntu16.04自带的gcc版本为5.4，而错误显示高于5.3的都不支持。解决方案请参考官网：[https://github.com/BVLC/caffe/wiki/GeForce-GTX-1080,---CUDA-8.0,---Ubuntu-16.04,---Caffe](https://github.com/BVLC/caffe/wiki/GeForce-GTX-1080,---CUDA-8.0,---Ubuntu-16.04,---Caffe)
+
+然后开始正常安装，并开始make，但是make到24%出现错误，gcc版本太高，ubuntu16.04自带的gcc版本为5.4，而错误显示高于5.3的都不支持。
+
+解决方案请参考官网：[https://github.com/BVLC/caffe/wiki/GeForce-GTX-1080,---CUDA-8.0,---Ubuntu-16.04,---Caffe](https://github.com/BVLC/caffe/wiki/GeForce-GTX-1080,---CUDA-8.0,---Ubuntu-16.04,---Caffe)
+
 [https://github.com/BVLC/caffe/wiki/Ubuntu-16.04-or-15.10-Installation-Guide](https://github.com/BVLC/caffe/wiki/Ubuntu-16.04-or-15.10-Installation-Guide)
 
 然后在cuda的samples文件夹下 make clean
+
 重新 make
+
 回到opencv3.0文件下
+
 重新运行指令：
+
 `sudo sh opencv3_0_0.sh`
 
 但是make到72%出现错误，graphcuts.cpp文件中许多变量没有声明，google之后发现是因为opencv3.0还不支持cuda8.0,但是有个同学已经对其进行修改。
+
 请参考：[https://github.com/opencv/opencv/pull/6510/commits/10896129b39655e19e4e7c529153cb5c2191a1db](https://github.com/opencv/opencv/pull/6510/commits/10896129b39655e19e4e7c529153cb5c2191a1db) 
+
 ```
 cd  '/home/zhou/opencv3.0/OpenCV/opencv-3.0.0/modules/cudalegacy/src'
 ```
@@ -289,17 +372,23 @@ cd  '/home/zhou/opencv3.0/OpenCV/opencv-3.0.0/modules/cudalegacy/src'
 sudo vi graphcuts.cpp
 ```
 进行修改
+
 ![增加了两句，将原来的一句进行注释](http://img.blog.csdn.net/20160720020213037)
 然后保存并退出。
 
-再次运行  `sudo sh opencv3_0_0.sh` 
+再次运行  `sudo sh opencv3_0_0.sh`
+
 这次运行正常，至此opencv3.0安装成功（太折腾）！！！
 
 **6)** caffe编译
 下载caffe-master，解压到/home/zhou下，我重新命了个名字，caffe
+
 然后 配置Makefile.config文件，执行指令：
+
 `cp Makefile.config.example Makefile.config`
+
 我的配置文件如下：
+
 ```
 ## Refer to http://caffe.berkeleyvision.org/installation.html
 # Contributions simplifying and improving our build system are welcome!
@@ -421,14 +510,18 @@ make all -j16
 
 ```
 **7）**编译时出现的错误：
+
 （1）`#error -- unsupported GNU version! gcc versions later than 5.3 are not supported!`
+
 解决方法:参考上面给出的官网wiki，注释掉 /usr/local/cuda/include/host_config.h
+
 里出错的这一句就可以了。
 
 ![这里写图片描述](http://img.blog.csdn.net/20160805201051427)
 
 
 （2）出现错误:找不到hdf5文件
+
 解决方法:在Makefile.config 文件里面的INCLUDE_DIRS和LIBRARY_DIRS 修改为如下所示:
 
 INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial
@@ -437,12 +530,17 @@ LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu 
 
 
 （3）`.build_release/lib/libcaffe.so: undefined reference to 'google::protobuf::io::CodedOutputStream::WriteVarint64ToArray(unsigned long long, unsigned char*)'`
+
 原因：apt-get install 的安装命令导致安装的protobuf
+
 的gcc编译器版本低，所以需要卸载当前的libprotobuf-dev 和protobuf-compiler，重新安装protobuf-2.5.0.
+
 （一）卸载当前libprotobuf-dev 和protobuf-compiler
+
 ```
 sudo apt-get autoremove libprotobuf-dev protobuf-compiler
 ```
+
 （二）重新让系统恢复默认的gcc-5
 
 ```
@@ -452,8 +550,11 @@ sudo ln -s gcc-5 gcc
 sudo rm g++
 sudo ln -s  g++-5 g++
 ```
+
 （三）protobuf-2.5.0安装
+
 下载protobuf-2.5.0，下载地址：[http://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz](http://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz)
+
 安装过程参考：[http://blog.csdn.net/hjimce/article/details/51999566](http://blog.csdn.net/hjimce/article/details/51999566)
 我的有点不同的地方是：路径不同
 
@@ -468,15 +569,21 @@ sudo ldconfig
 
 ```
 重新回到caffe目录下:
+
 make clean
+
 make all -j16
+
 make test -j16
+
 make runtest -j16
 
 顺利完成！！！！！！ 快夸我！！！！
  
 编译Python和Matlab用到的caffe文件
+
 make pycaffe -j16
+
 make matcaffe -j16
 
 
